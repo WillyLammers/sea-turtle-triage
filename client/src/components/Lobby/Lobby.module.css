@@ -1,0 +1,344 @@
+.lobby {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, var(--ocean-deep) 0%, var(--ocean-dark) 60%, var(--ocean-mid) 100%);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Background swimming turtles ── */
+.bgTurtles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bgTurtle {
+  position: absolute;
+  left: -100px;
+  opacity: 0.15;
+  animation: swim 22s linear infinite;
+}
+
+@keyframes swim {
+  0% {
+    transform: translateX(-120px) translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(30vw) translateY(-12px) rotate(-2deg);
+  }
+  50% {
+    transform: translateX(60vw) translateY(8px) rotate(2deg);
+  }
+  75% {
+    transform: translateX(85vw) translateY(-6px) rotate(-1deg);
+  }
+  100% {
+    transform: translateX(calc(100vw + 120px)) translateY(0) rotate(0deg);
+  }
+}
+
+/* ── Bottom waves ── */
+.waves {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 160px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.waveSvg {
+  position: absolute;
+  bottom: 0;
+  width: 200%;
+  height: 100%;
+}
+
+.wave1 {
+  animation: waveShift 8s ease-in-out infinite alternate;
+}
+
+.wave2 {
+  animation: waveShift 10s ease-in-out infinite alternate-reverse;
+}
+
+.wave3 {
+  animation: waveShift 12s ease-in-out infinite alternate;
+}
+
+@keyframes waveShift {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-25%);
+  }
+}
+
+/* ── Main content ── */
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 24px;
+  max-width: 460px;
+  width: 100%;
+}
+
+/* ── Title ── */
+.titleBlock {
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.titleWave {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--ocean-foam), var(--ocean-surface), var(--seagrass));
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--ocean-foam);
+  opacity: 0.8;
+}
+
+/* ── Card ── */
+.card {
+  background: rgba(15, 40, 71, 0.85);
+  border: 1px solid var(--ocean-mid);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 100%;
+  backdrop-filter: blur(12px);
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Mode select ── */
+.modeSelect {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Form ── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cardTitle {
+  font-size: 1.2rem;
+  color: var(--ocean-foam);
+  font-weight: 600;
+}
+
+.backBtn {
+  align-self: flex-start;
+  background: none;
+  color: var(--ocean-surface);
+  font-size: 0.85rem;
+  padding: 4px 0;
+}
+
+.backBtn:hover {
+  color: var(--ocean-foam);
+}
+
+.input {
+  width: 100%;
+}
+
+/* ── Buttons ── */
+.btnPrimary {
+  background: linear-gradient(135deg, var(--ocean-light), var(--seagrass));
+  color: var(--white);
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 12px 20px;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  box-shadow: 0 4px 18px rgba(78, 205, 196, 0.35);
+}
+
+.btnSecondary {
+  background: transparent;
+  color: var(--ocean-surface);
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 12px 20px;
+  border: 2px solid var(--ocean-mid);
+}
+
+.btnSecondary:hover {
+  border-color: var(--ocean-surface);
+  background: rgba(79, 179, 217, 0.1);
+}
+
+/* ── Room header ── */
+.roomHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.roomLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--ocean-surface);
+}
+
+.roomCode {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--sunset-yellow);
+  text-shadow: 0 2px 10px rgba(255, 217, 61, 0.3);
+  user-select: all;
+}
+
+/* ── Player list ── */
+.playerList {
+  margin-bottom: 20px;
+}
+
+.playerListTitle {
+  font-size: 0.9rem;
+  color: var(--ocean-foam);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.playerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(10, 22, 40, 0.5);
+  margin-bottom: 6px;
+}
+
+.playerName {
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hostBadge {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--sunset-orange);
+  color: var(--ocean-deep);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.readyCheck {
+  color: var(--success-green);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.readyCircle {
+  color: var(--gray-mid);
+  font-size: 1.2rem;
+}
+
+/* ── Room actions ── */
+.roomActions {
+  display: flex;
+  gap: 12px;
+}
+
+.btnReady {
+  flex: 1;
+  background: var(--ocean-mid);
+  color: var(--white);
+  font-weight: 600;
+}
+
+.btnReady:hover {
+  background: var(--ocean-light);
+}
+
+.btnStart {
+  flex: 1;
+  background: linear-gradient(135deg, var(--seagrass), var(--success-green));
+  color: var(--ocean-deep);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.btnStart:hover:not(:disabled) {
+  box-shadow: 0 4px 18px rgba(6, 214, 160, 0.4);
+}
+
+/* ── Disconnected banner ── */
+.disconnected {
+  background: rgba(230, 57, 70, 0.2);
+  border: 1px solid var(--alert-red);
+  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  font-size: 0.85rem;
+  color: var(--alert-red);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

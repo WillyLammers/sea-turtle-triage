@@ -1,0 +1,682 @@
+/* ==========================================================================
+   Stage 2 — Surge Triage
+   ========================================================================== */
+
+/* ── Scene / layout ─────────────────────────────────────────────────────── */
+
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      180deg,
+      #1a1a2e 0%,
+      #2d2d44 18%,
+      #3a3a5c 30%,
+      var(--ocean-dark) 45%,
+      #1b3b5a 55%,
+      var(--ocean-mid) 65%,
+      #3d6e8a 75%,
+      var(--sand-dark) 85%,
+      var(--sand-mid) 95%,
+      var(--sand-light) 100%
+    );
+}
+
+/* ── Rain overlay ──────────────────────────────────────────────────────── */
+
+.rain {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rain::before,
+.rain::after {
+  content: '';
+  position: absolute;
+  width: 120%;
+  height: 200%;
+  top: -100%;
+  left: -10%;
+  background-image: repeating-linear-gradient(
+    95deg,
+    transparent,
+    transparent 99.4%,
+    rgba(180, 210, 240, 0.12) 99.4%,
+    rgba(180, 210, 240, 0.12) 100%
+  );
+  background-size: 22px 100%;
+  animation: rainfall 0.7s linear infinite;
+}
+
+.rain::after {
+  background-size: 16px 100%;
+  animation-duration: 0.5s;
+  opacity: 0.5;
+}
+
+@keyframes rainfall {
+  from { transform: translateY(-50%) skewX(-5deg); }
+  to   { transform: translateY(0%) skewX(-5deg); }
+}
+
+/* ── Top bar (progress + score) ─────────────────────────────────────────── */
+
+.topBar {
+  width: 100%;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+}
+
+.progressWrap {
+  flex: 1;
+}
+
+.scoreDisplay {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--sunset-yellow);
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.02em;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.header {
+  text-align: center;
+  margin-bottom: 2px;
+  z-index: 10;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--white);
+  text-shadow:
+    0 0 12px rgba(255, 160, 122, 0.7),
+    0 2px 6px rgba(0, 0, 0, 0.6);
+  animation: waveText 3s ease-in-out infinite;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+
+@keyframes waveText {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+/* ── Card area (central) ────────────────────────────────────────────────── */
+
+.gameArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 12px;
+  z-index: 5;
+}
+
+.cardArea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 640px;
+  padding: 0 16px;
+  position: relative;
+}
+
+/* ── Patient card ───────────────────────────────────────────────────────── */
+
+.patientCard {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  position: relative;
+  animation: slideInRight 0.4s ease-out both;
+  color: var(--gray-dark);
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Urgency stripe (left side) */
+.patientCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  z-index: 2;
+}
+
+.stripeOrange::before {
+  background: linear-gradient(180deg, var(--sunset-yellow), var(--sunset-orange));
+}
+
+.stripeRed::before {
+  background: linear-gradient(180deg, var(--sunset-orange), var(--alert-red));
+}
+
+/* Result borders */
+.cardCorrect {
+  box-shadow:
+    0 0 0 3px var(--success-green),
+    0 0 20px rgba(6, 214, 160, 0.3),
+    0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+.cardWrong {
+  box-shadow:
+    0 0 0 3px var(--alert-red),
+    0 0 20px rgba(230, 57, 70, 0.3),
+    0 8px 40px rgba(0, 0, 0, 0.4);
+  animation: slideInRight 0.4s ease-out both, shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-6px); }
+  75%      { transform: translateX(6px); }
+}
+
+/* ── Timer bar at top of card ──────────────────────────────────────────── */
+
+.timerRow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+}
+
+.timerTrack {
+  flex: 1;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.timerBar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ocean-surface), var(--ocean-light));
+  transition: width 0.25s linear;
+  border-radius: 0 3px 3px 0;
+}
+
+.timerBarUrgent {
+  background: linear-gradient(90deg, var(--sunset-orange), var(--alert-red));
+  box-shadow: 0 0 8px rgba(230, 57, 70, 0.5);
+  animation: pulseBar 0.6s ease-in-out infinite;
+}
+
+.timerSeconds {
+  min-width: 42px;
+  padding: 4px 10px 4px 8px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--ocean-mid);
+  background: rgba(0, 0, 0, 0.03);
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
+  letter-spacing: -0.02em;
+}
+
+.timerSecondsUrgent {
+  color: var(--alert-red);
+  animation: pulseBar 0.6s ease-in-out infinite;
+}
+
+@keyframes pulseBar {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+/* ── Card header row ───────────────────────────────────────────────────── */
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px 10px 22px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.speciesName {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ocean-dark);
+  flex: 1;
+}
+
+.turtleIcon {
+  flex-shrink: 0;
+}
+
+/* ── Card body — stats & description ───────────────────────────────────── */
+
+.cardBody {
+  padding: 12px 18px 16px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Stat chips */
+.stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--ocean-dark);
+  background: rgba(79, 179, 217, 0.1);
+  border: 1px solid rgba(79, 179, 217, 0.2);
+  border-radius: 20px;
+  padding: 3px 12px 3px 8px;
+}
+
+.statLabel {
+  font-weight: 700;
+  color: var(--ocean-mid);
+}
+
+/* Content sections (injuries, condition) */
+.section {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  background: rgba(0, 0, 0, 0.025);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  border-left: 3px solid var(--ocean-surface);
+}
+
+.sectionTitle {
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ocean-mid);
+  margin-bottom: 3px;
+}
+
+/* ── Result overlay inside card ────────────────────────────────────────── */
+
+.resultOverlay {
+  padding: 12px 18px 16px 22px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.resultCorrect {
+  background: linear-gradient(135deg, #e8faf0, #d4f5e5);
+  color: #145a34;
+}
+
+.resultWrong {
+  background: linear-gradient(135deg, #fde8ea, #fad4d8);
+  color: #7a1a22;
+}
+
+.resultLabel {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.correctAnswerHint {
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ── Condition slot buttons ─────────────────────────────────────────────── */
+
+.slotsOuter {
+  width: 100%;
+  max-width: 640px;
+  padding: 0 16px 24px;
+  z-index: 10;
+}
+
+.slotsLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.slotsContainer {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.slotBtn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 6px;
+  border-radius: var(--radius-md);
+  border: 3px solid transparent;
+  color: var(--white);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.2s ease,
+    filter 0.2s ease;
+  position: relative;
+  min-height: 90px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.slotBtn:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.slotBtn:active:not(:disabled) {
+  transform: translateY(0) scale(0.96);
+}
+
+.slotBtn:disabled {
+  cursor: not-allowed;
+  filter: brightness(0.7);
+}
+
+.slotBtn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Color-coded backgrounds (gradients) */
+.slotCC0 {
+  background: linear-gradient(180deg, #666666, #444444);
+}
+
+.slotCC1 {
+  background: linear-gradient(180deg, #10e8b0, #05b888);
+}
+
+.slotCC2 {
+  background: linear-gradient(180deg, #ffe066, #f0c830);
+  color: #3d3000;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.slotCC3 {
+  background: linear-gradient(180deg, #ffb088, #e87850);
+}
+
+.slotCC4 {
+  background: linear-gradient(180deg, #f05060, #c82838);
+}
+
+.slotIcon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.slotCode {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.slotLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Selected state */
+.slotSelected {
+  border-color: var(--white);
+  box-shadow: 0 0 0 2px var(--white), 0 4px 16px rgba(0, 0, 0, 0.4);
+  transform: translateY(-4px);
+}
+
+/* Reveal states */
+.slotCorrectReveal {
+  border-color: var(--success-green);
+  box-shadow: 0 0 0 3px var(--success-green), 0 0 20px rgba(6, 214, 160, 0.5);
+}
+
+.slotWrongReveal {
+  border-color: var(--alert-red);
+  box-shadow: 0 0 0 3px var(--alert-red), 0 0 20px rgba(230, 57, 70, 0.5);
+}
+
+.checkmark,
+.xmark {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--white);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.checkmark {
+  background: var(--success-green);
+}
+
+.xmark {
+  background: var(--alert-red);
+}
+
+/* ── Streak counter ─────────────────────────────────────────────────────── */
+
+.streakWrap {
+  text-align: center;
+  padding: 2px 0;
+  min-height: 26px;
+  z-index: 10;
+}
+
+.streak {
+  display: inline-block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--sunset-yellow);
+  text-shadow: 0 0 8px rgba(255, 217, 61, 0.6);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.streakFire {
+  color: var(--sunset-orange);
+  background: rgba(0, 0, 0, 0.35);
+  text-shadow:
+    0 0 8px rgba(255, 160, 122, 0.7),
+    0 0 20px rgba(255, 100, 50, 0.4);
+  animation: fireGlow 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes fireGlow {
+  from {
+    text-shadow:
+      0 0 8px rgba(255, 160, 122, 0.7),
+      0 0 20px rgba(255, 100, 50, 0.4);
+  }
+  to {
+    text-shadow:
+      0 0 14px rgba(255, 160, 122, 0.9),
+      0 0 30px rgba(255, 80, 30, 0.6),
+      0 0 50px rgba(255, 50, 10, 0.3);
+  }
+}
+
+/* ── Time's up flash ────────────────────────────────────────────────────── */
+
+.timesUp {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(230, 57, 70, 0.25);
+  z-index: 50;
+  animation: flashIn 0.15s ease-out;
+  pointer-events: none;
+  border-radius: var(--radius-lg);
+}
+
+.timesUpText {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--white);
+  text-shadow:
+    0 0 20px var(--alert-red),
+    0 4px 12px rgba(0, 0, 0, 0.6);
+  animation: pulseScale 0.6s ease-in-out;
+}
+
+@keyframes flashIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulseScale {
+  0%   { transform: scale(0.6); opacity: 0; }
+  50%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Card transition (brief gap between cards) ──────────────────────────── */
+
+.cardExiting {
+  animation: slideOutLeft 0.35s ease-in forwards;
+}
+
+@keyframes slideOutLeft {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-100px); }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .cardHeader {
+    padding: 10px 12px 6px 16px;
+  }
+
+  .cardBody {
+    padding: 0 12px 10px 16px;
+  }
+
+  .speciesName {
+    font-size: 1rem;
+  }
+
+  .section {
+    font-size: 0.82rem;
+    padding: 8px 10px;
+  }
+
+  .slotsContainer {
+    gap: 5px;
+    padding: 8px 8px 16px;
+  }
+
+  .slotBtn {
+    min-height: 74px;
+    padding: 10px 3px;
+  }
+
+  .slotCode {
+    font-size: 0.85rem;
+  }
+
+  .slotLabel {
+    font-size: 0.6rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+
+  .patientCard {
+    max-width: 580px;
+  }
+
+  .speciesName {
+    font-size: 1.3rem;
+  }
+
+  .slotBtn {
+    min-height: 96px;
+    padding: 16px 8px;
+  }
+
+  .slotCode {
+    font-size: 1.05rem;
+  }
+
+  .slotLabel {
+    font-size: 0.78rem;
+  }
+}

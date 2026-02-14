@@ -1,0 +1,50 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: var(--ocean-foam);
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.track {
+  flex: 1;
+  height: 14px;
+  background: var(--ocean-dark);
+  border-radius: 7px;
+  overflow: hidden;
+  border: 1px solid var(--ocean-mid);
+}
+
+.fill {
+  height: 100%;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--ocean-mid), var(--ocean-light), var(--ocean-surface));
+  transition: width 0.4s ease;
+  position: relative;
+}
+
+.fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 100%);
+  border-radius: 7px 7px 0 0;
+}
+
+.count {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--white);
+  min-width: 40px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
