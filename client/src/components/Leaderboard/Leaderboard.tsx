@@ -4,7 +4,7 @@ import styles from './Leaderboard.module.css';
 
 export function Leaderboard() {
   const { state } = useGame();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => window.innerWidth <= 480);
   const showOverlay = state.stageResults !== null;
 
   return (

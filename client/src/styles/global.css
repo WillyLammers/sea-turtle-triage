@@ -46,9 +46,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body, #root {
+  height: 100dvh;
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -127,4 +129,23 @@ input::placeholder {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
+}
+
+/* ── Mobile touch targets & input zoom prevention ── */
+@media (max-width: 480px) {
+  button {
+    min-height: 44px;
+  }
+
+  input {
+    font-size: 16px;
+  }
+}
+
+/* ── Touch device: reset sticky hover states ── */
+@media (hover: none) and (pointer: coarse) {
+  button:hover {
+    box-shadow: none;
+    transform: none;
+  }
 }

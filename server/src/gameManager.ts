@@ -25,12 +25,11 @@ const CORRECT_ANSWERS: Record<string, string> = {
   n4: 'Hatched (old)',
   n5: 'Washed Over',
   // Stage 2 — Stranding Triage
-  s1: 'CC0', s2: 'CC0', s3: 'CC0',
-  s4: 'CC1', s5: 'CC1', s6: 'CC1',
-  s7: 'CC2', s8: 'CC2', s9: 'CC2',
-  s10: 'CC3', s11: 'CC3', s12: 'CC3',
-  s13: 'CC4', s14: 'CC4', s15: 'CC4', s16: 'CC4',
-  s17: 'CC2', s18: 'CC2',
+  s1: 'CC0',
+  s2: 'CC1',
+  s3: 'CC2',
+  s4: 'CC3',
+  s5: 'CC4',
   // Stage 4 — Lab Analysis subtasks
   'lab1-st1': 'lab1-m1,lab1-m3,lab1-m5,lab1-m8',
   'lab1-st2': 'Spirorchid cardiovascular fluke egg embolization to the brain',

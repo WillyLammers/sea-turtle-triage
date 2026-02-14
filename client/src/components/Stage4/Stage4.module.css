@@ -591,3 +591,47 @@
     gap: 0.4rem;
   }
 }
+
+@media (max-width: 480px) {
+  .quizCard {
+    max-height: calc(100dvh - 10rem);
+    max-height: calc(100vh - 10rem);
+  }
+
+  .headerTitle {
+    font-size: 1.4rem;
+  }
+
+  .headerSubtitle {
+    font-size: 0.82rem;
+  }
+
+  .optionBtn {
+    min-height: 44px;
+  }
+
+  .confirmBtn {
+    min-height: 44px;
+  }
+
+  .speciesName {
+    font-size: 1rem;
+  }
+
+  .rehabSummary {
+    font-size: 0.8rem;
+  }
+}
+
+/* ── Touch hover resets ── */
+@media (hover: none) and (pointer: coarse) {
+  .optionBtn:hover:not(:disabled):not(.optionSelected) {
+    background: #5a3a1a;
+    transform: none;
+  }
+
+  .confirmBtn:hover:not(:disabled) {
+    transform: none;
+    box-shadow: 0 4px 16px rgba(6, 214, 160, 0.35);
+  }
+}

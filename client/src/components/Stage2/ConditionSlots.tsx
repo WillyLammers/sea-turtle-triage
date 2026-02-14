@@ -68,11 +68,11 @@ function AlertIcon() {
 }
 
 const SLOTS: SlotDef[] = [
-  { code: 'CC0', label: 'Dead',     description: 'No heartbeat or reflexes', colorClass: 'slotCC0', icon: <SkullIcon /> },
-  { code: 'CC1', label: 'Good',     description: 'Alert, strong, responsive', colorClass: 'slotCC1', icon: <HeartIcon /> },
-  { code: 'CC2', label: 'Fair',     description: 'Responsive but impaired',  colorClass: 'slotCC2', icon: <HeartHalfIcon /> },
-  { code: 'CC3', label: 'Poor',     description: 'Barely responsive, weak',  colorClass: 'slotCC3', icon: <HeartCrackIcon /> },
-  { code: 'CC4', label: 'Critical', description: 'Near death, faint vitals', colorClass: 'slotCC4', icon: <AlertIcon /> },
+  { code: 'CC0', label: 'Dead',     description: 'No pulse or reflexes',      colorClass: 'slotCC0', icon: <SkullIcon /> },
+  { code: 'CC1', label: 'Good',     description: 'Alert and strong',          colorClass: 'slotCC1', icon: <HeartIcon /> },
+  { code: 'CC2', label: 'Fair',     description: 'Alive but struggling',      colorClass: 'slotCC2', icon: <HeartHalfIcon /> },
+  { code: 'CC3', label: 'Poor',     description: 'Barely alive, very weak',   colorClass: 'slotCC3', icon: <HeartCrackIcon /> },
+  { code: 'CC4', label: 'Critical', description: 'Near death, needs emergency care', colorClass: 'slotCC4', icon: <AlertIcon /> },
 ];
 
 export function ConditionSlots({
@@ -83,7 +83,7 @@ export function ConditionSlots({
 }: ConditionSlotsProps) {
   return (
     <div className={styles.slotsOuter}>
-      <div className={styles.slotsLabel}>Assign condition code:</div>
+      <div className={styles.slotsLabel}>How is this turtle doing?</div>
       <div className={styles.slotsContainer}>
       {SLOTS.map((slot) => {
         const isSelected = selectedCode === slot.code;
@@ -108,8 +108,9 @@ export function ConditionSlots({
             onClick={() => onSelect(slot.code)}
           >
             <span className={styles.slotIcon}>{slot.icon}</span>
+            <span className={styles.slotMainLabel}>{slot.label}</span>
+            <span className={styles.slotHint}>{slot.description}</span>
             <span className={styles.slotCode}>{slot.code}</span>
-            <span className={styles.slotLabel}>{slot.description}</span>
 
             {/* Check / X badges on reveal */}
             {correctCode && isCorrectSlot && (

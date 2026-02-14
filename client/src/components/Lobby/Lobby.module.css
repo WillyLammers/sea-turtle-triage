@@ -342,3 +342,48 @@
     opacity: 0.6;
   }
 }
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  .title {
+    font-size: 2rem;
+  }
+
+  .roomCode {
+    font-size: 1.8rem;
+    letter-spacing: 4px;
+  }
+
+  .card {
+    padding: 20px 16px;
+  }
+
+  .content {
+    gap: 20px;
+    padding: 16px;
+  }
+}
+
+/* ── Touch hover resets ── */
+@media (hover: none) and (pointer: coarse) {
+  .btnPrimary:hover:not(:disabled) {
+    box-shadow: none;
+  }
+
+  .btnSecondary:hover {
+    border-color: var(--ocean-mid);
+    background: transparent;
+  }
+
+  .backBtn:hover {
+    color: var(--ocean-surface);
+  }
+
+  .btnReady:hover {
+    background: var(--ocean-mid);
+  }
+
+  .btnStart:hover:not(:disabled) {
+    box-shadow: none;
+  }
+}

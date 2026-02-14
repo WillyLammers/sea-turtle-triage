@@ -48,3 +48,19 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+@media (max-width: 480px) {
+  .track {
+    height: 10px;
+    border-radius: 5px;
+  }
+
+  .label {
+    font-size: 0.75rem;
+  }
+
+  .count {
+    font-size: 0.75rem;
+    min-width: 32px;
+  }
+}

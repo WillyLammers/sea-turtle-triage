@@ -11,7 +11,7 @@ interface PatientCardProps {
 }
 
 /** How many seconds each card gets — used to compute the timer-bar width. */
-const CARD_SECONDS = 12;
+const CARD_SECONDS = 20;
 
 export function PatientCard({ stranding, result, timeLeft }: PatientCardProps) {
   const pct = CARD_SECONDS > 0 ? Math.max((timeLeft / CARD_SECONDS) * 100, 0) : 0;
@@ -75,9 +75,9 @@ export function PatientCard({ stranding, result, timeLeft }: PatientCardProps) {
           {stranding.injuries}
         </div>
 
-        {/* Condition */}
-        <div className={styles.section}>
-          <div className={styles.sectionTitle}>Condition Notes</div>
+        {/* Condition — this is the key section for picking a rating */}
+        <div className={`${styles.section} ${styles.sectionHighlight}`}>
+          <div className={styles.sectionTitle}>Responsiveness &amp; Behavior</div>
           {stranding.condition}
         </div>
       </div>

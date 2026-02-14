@@ -8,12 +8,14 @@ import { PatientCard } from './PatientCard';
 import { ConditionSlots } from './ConditionSlots';
 import styles from './Stage2.module.css';
 
-const SECONDS_PER_CARD = 12;
+const SECONDS_PER_CARD = 20;
 const RESULT_DISPLAY_MS = 1500;
 const TRANSITION_MS = 500;
 
 export function SurgeTriage() {
   const { submitAnswer, completeStage } = useGame();
+
+  const [phase, setPhase] = useState<'intro' | 'playing'>('intro');
 
   // Queue of stranding cards (shuffled once on mount)
   const [cards] = useState(() => [...STRANDING_CARDS].sort(() => Math.random() - 0.5));
@@ -183,6 +185,31 @@ export function SurgeTriage() {
   const revealCorrectCode: string | null =
     result !== null ? currentCard.correctCode : null;
 
+  // ---- Intro / transition screen ----
+  if (phase === 'intro') {
+    return (
+      <div className={styles.scene}>
+        <div className={styles.rain} />
+        <div className={styles.introOverlay}>
+          <div className={styles.introRadioIcon}>📟</div>
+          <div className={styles.introAlert}>INCOMING ALERT</div>
+          <h2 className={styles.introTitle}>Stranding Surge</h2>
+          <p className={styles.introDesc}>
+            Multiple sea turtles have washed ashore. Read each patient report and assign a
+            condition code as fast as you can — every second counts.
+          </p>
+          <div className={styles.introStats}>
+            <span className={styles.introStatChip}>{totalCards} patients incoming</span>
+            <span className={styles.introStatChip}>{SECONDS_PER_CARD}s per triage</span>
+          </div>
+          <button className={styles.introStartBtn} onClick={() => setPhase('playing')}>
+            Begin Triage
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.scene}>
       {/* Animated rain */}
@@ -203,7 +230,7 @@ export function SurgeTriage() {
       {/* Header */}
       <div className={styles.header}>
         <h2 className={styles.title}>Stranding Surge</h2>
-        <p className={styles.subtitle}>Read each report, then assign a condition code below</p>
+        <p className={styles.subtitle}>How healthy is this turtle? Read the report, then pick a rating.</p>
       </div>
 
       {/* Streak counter */}

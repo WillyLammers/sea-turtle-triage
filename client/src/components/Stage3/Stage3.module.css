@@ -681,15 +681,15 @@
    Responsive adjustments
    --------------------------------------------------------------------------- */
 
-@media (max-width: 400px) {
+@media (max-width: 480px) {
   .microscopeWrapper {
-    width: 260px;
-    height: 260px;
+    width: 240px;
+    height: 240px;
   }
 
   .stomachWrapper {
-    width: 240px;
-    height: 190px;
+    width: 220px;
+    height: 175px;
   }
 
   .labContent {
@@ -702,5 +702,68 @@
 
   .subTaskBody {
     padding: 12px;
+  }
+
+  .optionButton {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+
+  .nextButton {
+    min-height: 44px;
+  }
+
+  .giveUpButton {
+    min-height: 44px;
+  }
+}
+
+/* ── Enlarge tap areas on small interactive items (touch) ── */
+@media (pointer: coarse) {
+  .microscopeItem::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+  }
+
+  .stomachItem::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+  }
+}
+
+/* ── Touch hover resets ── */
+@media (hover: none) and (pointer: coarse) {
+  .optionButton:hover:not(:disabled) {
+    border-color: #c8d6e0;
+    background: #f0f4f8;
+  }
+
+  .nextButton:hover {
+    background: var(--ocean-light);
+  }
+
+  .giveUpButton:hover {
+    background: transparent;
+    color: #8a9ab0;
+  }
+
+  .microscopeItem:hover:not(.itemTapped):not(.itemDisabled) {
+    transform: translate(-50%, -50%);
+  }
+
+  .stomachItem:hover:not(.itemTapped):not(.itemDisabled) {
+    transform: translate(-50%, -50%);
   }
 }

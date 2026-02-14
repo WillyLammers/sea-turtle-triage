@@ -260,3 +260,52 @@
   flex: 1;
   font-size: 0.9rem;
 }
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--ocean-mid);
+  }
+
+  .collapsed {
+    transform: translateY(calc(100% - 44px));
+  }
+
+  .tab {
+    left: 50%;
+    top: -36px;
+    transform: translateX(-50%);
+    width: auto;
+    min-width: 44px;
+    min-height: 36px;
+    flex-direction: row;
+    border: 1px solid var(--ocean-mid);
+    border-bottom: none;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    padding: 6px 12px;
+  }
+
+  .tabLabel {
+    writing-mode: horizontal-tb;
+    text-orientation: initial;
+  }
+
+  .overlayCard {
+    min-width: 0;
+    padding: 24px 16px;
+    width: 94%;
+  }
+
+  .overlayTitle {
+    font-size: 1.3rem;
+  }
+}
+
+/* ── Touch hover resets ── */
+@media (hover: none) and (pointer: coarse) {
+  .tab:hover {
+    background: rgba(10, 22, 40, 0.92);
+  }
+}
