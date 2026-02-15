@@ -124,7 +124,7 @@ export class GameManager {
       if (isCorrect) {
         points = 100;
         const elapsed = (Date.now() - data.timestamp) / 1000;
-        if (elapsed < 10) speedBonus = Math.round(50 * (1 - elapsed / 10));
+        if (elapsed < 10) speedBonus = Math.round(75 * (1 - elapsed / 10));
       } else {
         points = -25;
       }
@@ -134,7 +134,7 @@ export class GameManager {
       if (isCorrect) {
         points = 75;
         const elapsed = (Date.now() - data.timestamp) / 1000;
-        if (elapsed < 10) speedBonus = Math.round(30 * (1 - elapsed / 10));
+        if (elapsed < 10) speedBonus = Math.round(50 * (1 - elapsed / 10));
         this.playerStreaks.set(socketId, streak + 1);
         if (streak + 1 >= STREAK_THRESHOLD) {
           streakBonus = Math.round((points + speedBonus) * (STREAK_MULTIPLIER - 1));
@@ -155,8 +155,13 @@ export class GameManager {
       const sznCorrect = correctSeason ? submittedSeason === correctSeason : false;
       if (locCorrect) points += 100;
       if (sznCorrect) points += 50;
-      if (locCorrect && sznCorrect) points += 75; // bonus for both
-      // Override isCorrect for the result — consider "correct" if at least location is right
+      if (locCorrect && sznCorrect) {
+        points += 75; // bonus for both
+        const elapsed = (Date.now() - data.timestamp) / 1000;
+        if (elapsed < 15) speedBonus = Math.round(50 * (1 - elapsed / 15));
+      } else if (!locCorrect && !sznCorrect) {
+        points = -50; // penalty for getting both wrong
+      }
       const releaseCorrect = locCorrect && sznCorrect;
       const totalPoints = points + speedBonus + streakBonus;
       player.scores[stageKey] += totalPoints;
@@ -164,16 +169,18 @@ export class GameManager {
       return {
         correct: releaseCorrect,
         points,
-        speedBonus: 0,
+        speedBonus,
         streakBonus: 0,
         correctAnswer: `${correctLocation || ''}|${correctSeason || ''}`,
       };
     } else if (data.stageId === 4) {
-      // Lab Analysis — accuracy only
+      // Lab Analysis
       if (isCorrect) {
         points = 150;
+        const elapsed = (Date.now() - data.timestamp) / 1000;
+        if (elapsed < 15) speedBonus = Math.round(75 * (1 - elapsed / 15));
       } else {
-        points = 0; // partial credit handled client-side
+        points = -50;
       }
     }
 

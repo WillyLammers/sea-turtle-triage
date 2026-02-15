@@ -261,10 +261,46 @@
   font-size: 0.9rem;
 }
 
+/* ── Tablet ── */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .sidebarContent {
+    padding: 16px 12px;
+  }
+
+  .sidebarTitle {
+    font-size: 0.78rem;
+    margin-bottom: 12px;
+  }
+
+  .rankRow {
+    padding: 6px 8px;
+  }
+
+  .rank {
+    font-size: 0.78rem;
+  }
+
+  .name {
+    font-size: 0.78rem;
+  }
+
+  .score {
+    font-size: 0.82rem;
+  }
+}
+
 /* ── Mobile ── */
 @media (max-width: 480px) {
   .sidebar {
     width: 100%;
+    height: auto;
+    max-height: 50vh;
+    top: auto;
+    bottom: 0;
     border-left: none;
     border-top: 1px solid var(--ocean-mid);
   }

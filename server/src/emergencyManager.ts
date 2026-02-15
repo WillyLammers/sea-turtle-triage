@@ -155,6 +155,8 @@ export class EmergencyManager {
       if (elapsed < 20) {
         points += Math.round(100 * (1 - elapsed / 20));
       }
+    } else {
+      points = -50;
     }
 
     player.scores.emergency += points;
