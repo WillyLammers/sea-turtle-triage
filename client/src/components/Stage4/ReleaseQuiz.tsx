@@ -5,32 +5,41 @@ import styles from './Stage4.module.css';
 
 interface ReleaseResult {
   correctLocation: boolean;
-  correctSeason: boolean;
+  checklistCorrect: number;
+  checklistWrong: number;
+  checklistTotal: number;
+  perfectChecklist: boolean;
   points: number;
   educationalBlurb: string;
 }
 
 interface ReleaseQuizProps {
   scenario: ReleaseScenario;
-  onAnswer: (location: string, season: string) => void;
+  onAnswer: (location: string, selectedChecklist: string[]) => void;
   result: ReleaseResult | null;
 }
 
-const SEASON_ICONS: Record<string, string> = {
-  Spring: '\u{1F338}',  // cherry blossom
-  Summer: '\u{2600}\uFE0F',  // sun
-  Fall: '\u{1F342}',    // fallen leaf
-  Winter: '\u{2744}\uFE0F',  // snowflake
-};
-
 export function ReleaseQuiz({ scenario, onAnswer, result }: ReleaseQuizProps) {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
+  const [selectedChecklist, setSelectedChecklist] = useState<Set<string>>(new Set());
   const submitted = result !== null;
 
+  const toggleChecklistItem = (id: string) => {
+    if (submitted) return;
+    setSelectedChecklist((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
   const handleConfirm = () => {
-    if (selectedLocation && selectedSeason && !submitted) {
-      onAnswer(selectedLocation, selectedSeason);
+    if (selectedLocation && selectedChecklist.size > 0 && !submitted) {
+      onAnswer(selectedLocation, Array.from(selectedChecklist));
     }
   };
 
@@ -38,19 +47,34 @@ export function ReleaseQuiz({ scenario, onAnswer, result }: ReleaseQuizProps) {
     if (!submitted) {
       return selectedLocation === loc ? styles.optionSelected : '';
     }
-    // After result
     if (loc === scenario.correctLocation) return styles.optionCorrect;
     if (loc === selectedLocation && !result?.correctLocation) return styles.optionWrong;
     return styles.optionDimmed;
   };
 
-  const getSeasonClass = (season: string) => {
+  const getChecklistClass = (itemId: string, itemCorrect: boolean) => {
     if (!submitted) {
-      return selectedSeason === season ? styles.optionSelected : '';
+      return selectedChecklist.has(itemId) ? styles.optionSelected : '';
     }
-    if (season === scenario.correctSeason) return styles.optionCorrect;
-    if (season === selectedSeason && !result?.correctSeason) return styles.optionWrong;
+    // After submit
+    const wasSelected = selectedChecklist.has(itemId);
+    if (wasSelected && itemCorrect) return styles.optionCorrect;
+    if (wasSelected && !itemCorrect) return styles.optionWrong;
+    if (!wasSelected && !itemCorrect) return styles.optionDimmed;
+    // Not selected but was correct — dim it
     return styles.optionDimmed;
+  };
+
+  const getChecklistPrefix = (itemId: string, itemCorrect: boolean) => {
+    const wasSelected = selectedChecklist.has(itemId);
+    if (!submitted) {
+      return wasSelected ? '\u2713 ' : '';
+    }
+    // After submit: correct items get check, wrong get x
+    if (wasSelected && itemCorrect) return '\u2713 ';
+    if (wasSelected && !itemCorrect) return '\u2717 ';
+    if (!wasSelected && itemCorrect) return '\u2713 ';
+    return '\u2717 ';
   };
 
   return (
@@ -85,19 +109,21 @@ export function ReleaseQuiz({ scenario, onAnswer, result }: ReleaseQuizProps) {
           </div>
         </div>
 
-        {/* Release Season */}
+        {/* Pre-Release Checklist */}
         <div className={styles.selectionSection}>
-          <div className={styles.selectionTitle}>Release Season</div>
+          <div className={styles.selectionTitle}>Pre-Release Checklist</div>
           <div className={styles.optionGrid}>
-            {scenario.seasonOptions.map((season) => (
+            {scenario.checklistItems.map((item) => (
               <button
-                key={season}
-                className={`${styles.optionBtn} ${styles.seasonBtn} ${getSeasonClass(season)}`}
-                onClick={() => !submitted && setSelectedSeason(season)}
+                key={item.id}
+                className={`${styles.optionBtn} ${getChecklistClass(item.id, item.correct)}`}
+                onClick={() => toggleChecklistItem(item.id)}
                 disabled={submitted}
               >
-                <span className={styles.seasonIcon}>{SEASON_ICONS[season]}</span>
-                {season}
+                <span className={styles.checklistIcon}>
+                  {getChecklistPrefix(item.id, item.correct)}
+                </span>
+                {item.label}
               </button>
             ))}
           </div>
@@ -110,7 +136,7 @@ export function ReleaseQuiz({ scenario, onAnswer, result }: ReleaseQuizProps) {
           <button
             className={styles.confirmBtn}
             onClick={handleConfirm}
-            disabled={!selectedLocation || !selectedSeason}
+            disabled={!selectedLocation || selectedChecklist.size === 0}
           >
             Confirm Release
           </button>
@@ -130,10 +156,10 @@ export function ReleaseQuiz({ scenario, onAnswer, result }: ReleaseQuizProps) {
             </span>
             <span
               className={`${styles.resultBadge} ${
-                result.correctSeason ? styles.resultBadgeCorrect : styles.resultBadgeWrong
+                result.perfectChecklist ? styles.resultBadgeCorrect : styles.resultBadgeWrong
               }`}
             >
-              {result.correctSeason ? '\u2713' : '\u2717'} Season
+              {result.perfectChecklist ? '\u2713' : '\u2717'} Checklist ({result.checklistCorrect}/{result.checklistTotal})
             </span>
           </div>
 

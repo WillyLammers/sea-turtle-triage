@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import type { StomachItemShape } from '../../data/labCases';
 import { TurtleSVG } from '../shared/TurtleSVG';
 import { Microscope } from './Microscope';
@@ -236,6 +236,16 @@ function StomachItemSVG({ shape }: { shape: StomachItemShape }) {
   }
 }
 
+const STOMACH_CORRECT_PTS = 25;
+const STOMACH_WRONG_PTS = 15;
+
+interface TapFeedback {
+  key: number;
+  points: number;
+  x: number;
+  y: number;
+}
+
 function StomachSubTask({
   subTask,
   onComplete,
@@ -246,6 +256,9 @@ function StomachSubTask({
   disabled: boolean;
 }) {
   const [tappedItems, setTappedItems] = useState<Set<string>>(new Set());
+  const [tapScore, setTapScore] = useState(0);
+  const [tapFeedback, setTapFeedback] = useState<TapFeedback[]>([]);
+  const feedbackKeyRef = useRef(0);
 
   const positioned = useMemo(
     () => ensurePositions(subTask.items ?? []),
@@ -265,20 +278,34 @@ function StomachSubTask({
   const allFound = foundCount === targetIds.size && targetIds.size > 0;
 
   const handleTap = useCallback(
-    (itemId: string) => {
+    (itemId: string, x: number, y: number) => {
+      const isTarget = targetIds.has(itemId);
+      const pts = isTarget ? STOMACH_CORRECT_PTS : -STOMACH_WRONG_PTS;
+
+      setTapScore((prev) => prev + pts);
+
+      // Floating point feedback
+      const key = feedbackKeyRef.current++;
+      setTapFeedback((prev) => [...prev, { key, points: pts, x, y }]);
+      setTimeout(() => {
+        setTapFeedback((prev) => prev.filter((f) => f.key !== key));
+      }, 800);
+
       setTappedItems((prev) => {
         const next = new Set(prev);
         next.add(itemId);
 
         const newFoundCount = [...next].filter((id) => targetIds.has(id)).length;
         if (newFoundCount === targetIds.size && targetIds.size > 0) {
-          setTimeout(() => onComplete(subTask.correctAnswer), 500);
+          // Submit ALL tapped items for per-tap server scoring
+          const allTapped = [...next].join(',');
+          setTimeout(() => onComplete(allTapped), 500);
         }
 
         return next;
       });
     },
-    [targetIds, onComplete, subTask.correctAnswer],
+    [targetIds, onComplete],
   );
 
   return (
@@ -311,14 +338,14 @@ function StomachSubTask({
                 className={itemClasses}
                 style={{ left: `${item.x}%`, top: `${item.y}%` }}
                 onClick={() => {
-                  if (!disabled && !allFound && !isTapped) handleTap(item.id);
+                  if (!disabled && !allFound && !isTapped) handleTap(item.id, item.x, item.y);
                 }}
                 role="button"
                 tabIndex={disabled || allFound || isTapped ? -1 : 0}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    if (!disabled && !allFound && !isTapped) handleTap(item.id);
+                    if (!disabled && !allFound && !isTapped) handleTap(item.id, item.x, item.y);
                   }
                 }}
                 aria-label={isTapped ? `${item.label} (identified)` : 'Stomach content'}
@@ -327,6 +354,17 @@ function StomachSubTask({
               </div>
             );
           })}
+
+          {/* Floating per-tap point feedback */}
+          {tapFeedback.map((fb) => (
+            <div
+              key={fb.key}
+              className={`${styles.tapFeedback} ${fb.points > 0 ? styles.tapFeedbackPositive : styles.tapFeedbackNegative}`}
+              style={{ left: `${fb.x}%`, top: `${fb.y}%` }}
+            >
+              {fb.points > 0 ? '+' : ''}{fb.points}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -335,14 +373,17 @@ function StomachSubTask({
         <span className={styles.microscopeCountHighlight}>
           {foundCount}/{targetIds.size}
         </span>
+        <span className={`${styles.stomachScore} ${tapScore >= 0 ? styles.stomachScorePositive : styles.stomachScoreNegative}`}>
+          {tapScore >= 0 ? '+' : ''}{tapScore} pts
+        </span>
       </div>
 
       {!allFound && !disabled && (
         <button
           className={styles.giveUpButton}
-          onClick={() => onComplete('gave_up')}
+          onClick={() => onComplete([...tappedItems].join(',') || 'gave_up')}
         >
-          Skip (0 pts)
+          Skip ({tapScore >= 0 ? '+' : ''}{tapScore} pts)
         </button>
       )}
     </>
@@ -515,7 +556,7 @@ export function LabCase({
               {currentResult.correct ? 'Correct!' : 'Incorrect'}
             </div>
             <div className={styles.resultPoints}>
-              +{currentResult.points} pts
+              {currentResult.points >= 0 ? '+' : ''}{currentResult.points} pts
             </div>
             {currentExplanation && (
               <div className={styles.resultExplanation}>

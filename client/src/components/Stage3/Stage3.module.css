@@ -702,6 +702,46 @@
   opacity: 0.3;
 }
 
+/* Per-tap floating point feedback */
+.tapFeedback {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 0.85rem;
+  font-weight: 800;
+  pointer-events: none;
+  z-index: 10;
+  animation: tapFeedbackFloat 0.75s ease-out forwards;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.tapFeedbackPositive {
+  color: #06d6a0;
+}
+
+.tapFeedbackNegative {
+  color: #e63946;
+}
+
+@keyframes tapFeedbackFloat {
+  0%   { opacity: 1; transform: translate(-50%, -50%) translateY(0) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) translateY(-28px) scale(0.8); }
+}
+
+/* Running score display next to the found counter */
+.stomachScore {
+  margin-left: 10px;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.stomachScorePositive {
+  color: var(--seagrass-dark);
+}
+
+.stomachScoreNegative {
+  color: #e63946;
+}
+
 /* ---------------------------------------------------------------------------
    Blood Gas data table
    --------------------------------------------------------------------------- */

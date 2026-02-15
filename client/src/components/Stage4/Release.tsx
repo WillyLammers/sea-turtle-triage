@@ -1,6 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useGame } from '../../context/GameContext';
-import { socket } from '../../socket';
 import { RELEASE_SCENARIOS } from '../../data/releaseQuiz';
 import type { ReleaseScenario } from '../../data/releaseQuiz';
 import { Timer } from '../shared/Timer';
@@ -10,7 +9,10 @@ import styles from './Stage4.module.css';
 
 interface ReleaseResult {
   correctLocation: boolean;
-  correctSeason: boolean;
+  checklistCorrect: number;
+  checklistWrong: number;
+  checklistTotal: number;
+  perfectChecklist: boolean;
   points: number;
   educationalBlurb: string;
 }
@@ -27,75 +29,53 @@ export function Release() {
   const scenarios: ReleaseScenario[] = RELEASE_SCENARIOS;
   const scenario = scenarios[currentIndex];
   const total = scenarios.length;
-
-  // Listen for answer results from server
-  useEffect(() => {
-    const handleResult = (data: {
-      correct: boolean;
-      points: number;
-      correctAnswer: string;
-    }) => {
-      // Parse the correctAnswer to extract location/season feedback
-      // Server sends correctAnswer as "location|season" joined string
-      const correctLoc = scenario.correctLocation;
-      const correctSzn = scenario.correctSeason;
-
-      const resultData: ReleaseResult = {
-        correctLocation: data.correctAnswer
-          ? data.correctAnswer.includes(correctLoc) || data.correct
-          : data.correct,
-        correctSeason: data.correct,
-        points: data.points,
-        educationalBlurb: scenario.educationalBlurb,
-      };
-
-      setResult(resultData);
-      setScore((prev) => prev + data.points);
-      setTimerPaused(true);
-
-      // Advance to next scenario after delay
-      setTimeout(() => {
-        if (currentIndex < total - 1) {
-          setCurrentIndex((prev) => prev + 1);
-          setResult(null);
-          setTimerPaused(false);
-        } else {
-          setCompleted(true);
-          completeStage(3);
-        }
-      }, 3500);
-    };
-
-    socket.on('answer-result', handleResult);
-    return () => {
-      socket.off('answer-result', handleResult);
-    };
-  }, [currentIndex, total, scenario, completeStage]);
+  const scenarioStartTime = useRef(Date.now());
 
   const handleAnswer = useCallback(
-    (location: string, season: string) => {
-      // Determine correctness locally for immediate feedback
+    (location: string, selectedChecklist: string[]) => {
       const correctLoc = location === scenario.correctLocation;
-      const correctSzn = season === scenario.correctSeason;
-      // Calculate local points estimate
-      let points = 0;
-      if (correctLoc && correctSzn) points = 100;
-      else if (correctLoc) points = 50;
-      else if (correctSzn) points = 30;
 
-      // Show result locally immediately
+      // Checklist scoring
+      const correctItemIds = new Set(
+        scenario.checklistItems.filter((item) => item.correct).map((item) => item.id),
+      );
+      const selectedSet = new Set(selectedChecklist);
+
+      let checklistCorrect = 0;
+      let checklistWrong = 0;
+
+      for (const id of selectedSet) {
+        if (correctItemIds.has(id)) {
+          checklistCorrect++;
+        } else {
+          checklistWrong++;
+        }
+      }
+
+      const perfectChecklist = checklistCorrect === correctItemIds.size && checklistWrong === 0;
+
+      // Points: location = 100, each correct checklist = 25, each wrong = -15, perfect bonus = 50
+      let points = 0;
+      if (correctLoc) points += 100;
+      points += checklistCorrect * 25;
+      points += checklistWrong * -15;
+      if (perfectChecklist) points += 50;
+
       setResult({
         correctLocation: correctLoc,
-        correctSeason: correctSzn,
+        checklistCorrect,
+        checklistWrong,
+        checklistTotal: correctItemIds.size,
+        perfectChecklist,
         points,
         educationalBlurb: scenario.educationalBlurb,
       });
       setScore((prev) => prev + points);
       setTimerPaused(true);
 
-      // Submit combined answer to server
-      const answer = `${location}|${season}`;
-      submitAnswer(3, scenario.id, answer);
+      // Submit combined answer to server: "location|id1,id2,id3"
+      const answer = `${location}|${selectedChecklist.join(',')}`;
+      submitAnswer(3, scenario.id, answer, scenarioStartTime.current);
 
       // Advance after delay
       setTimeout(() => {
@@ -103,6 +83,7 @@ export function Release() {
           setCurrentIndex((prev) => prev + 1);
           setResult(null);
           setTimerPaused(false);
+          scenarioStartTime.current = Date.now();
         } else {
           setCompleted(true);
           completeStage(3);
@@ -135,7 +116,8 @@ export function Release() {
           <div className={styles.releaseIntroTitle}>Stage 3: Release Day</div>
           <p className={styles.releaseIntroDesc}>
             Your rehabilitated turtles are ready to return to the ocean. Choose the best release
-            location and season for each species based on their biology and habitat needs.
+            location and verify the pre-release checklist for each species based on their biology
+            and habitat needs.
           </p>
           <div className={styles.releaseIntroStats}>
             <span className={styles.releaseIntroChip}>{total} turtles to release</span>
@@ -240,7 +222,7 @@ export function Release() {
         <div className={styles.header}>
           <div className={styles.headerTitle}>RELEASE DAY</div>
           <div className={styles.headerSubtitle}>
-            Choose the right location and season for each turtle
+            Choose the right location and verify the pre-release checklist
           </div>
         </div>
 

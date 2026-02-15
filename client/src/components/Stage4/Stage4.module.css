@@ -407,7 +407,7 @@
 
 .selectionGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1.2rem;
   margin-bottom: 1rem;
 }
@@ -492,19 +492,13 @@
   75% { transform: translateX(4px); }
 }
 
-/* --- Season Icons --- */
+/* --- Checklist Icon --- */
 
-.seasonBtn {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.seasonIcon {
-  font-size: 1rem;
+.checklistIcon {
+  font-weight: 700;
+  font-size: 0.85rem;
+  min-width: 1rem;
   display: inline-flex;
-  width: 1.3rem;
-  justify-content: center;
 }
 
 /* --- Confirm Button --- */

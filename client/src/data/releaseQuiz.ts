@@ -2,7 +2,11 @@
 // Stage 3 — Release Decision Scenarios
 // ---------------------------------------------------------------------------
 
-export type Season = 'Spring' | 'Summer' | 'Fall' | 'Winter';
+export interface ChecklistItem {
+  id: string;
+  label: string;
+  correct: boolean;
+}
 
 export interface ReleaseScenario {
   id: string;
@@ -10,12 +14,9 @@ export interface ReleaseScenario {
   rehabSummary: string;
   locationOptions: string[];
   correctLocation: string;
-  seasonOptions: Season[];
-  correctSeason: Season;
+  checklistItems: ChecklistItem[];
   educationalBlurb: string;
 }
-
-export const SEASON_OPTIONS: Season[] = ['Spring', 'Summer', 'Fall', 'Winter'];
 
 export const RELEASE_SCENARIOS: ReleaseScenario[] = [
   {
@@ -30,8 +31,13 @@ export const RELEASE_SCENARIOS: ReleaseScenario[] = [
       'Chesapeake Bay, VA',
     ],
     correctLocation: 'Warm waters off the coast of central Florida',
-    seasonOptions: SEASON_OPTIONS,
-    correctSeason: 'Spring',
+    checklistItems: [
+      { id: 'r1-c1', label: 'Water temperature above 20\u00B0C at release site', correct: true },
+      { id: 'r1-c2', label: 'Access to warm ocean currents (Gulf Stream)', correct: true },
+      { id: 'r1-c3', label: 'Species-appropriate foraging habitat nearby', correct: true },
+      { id: 'r1-c4', label: 'Release at original stranding location', correct: false },
+      { id: 'r1-c5', label: 'Wait for nesting season before release', correct: false },
+    ],
     educationalBlurb:
       'Cold-stunned turtles should NOT be released back at their stranding location during cold months, as they would immediately face the same dangerous conditions. Instead, they are released into warm waters (typically off central or south Florida) in spring when water temperatures are safely above 20 degrees C. Releasing in warm Gulf Stream-influenced waters gives the turtle the best chance of rejoining the population. Kemp\'s ridleys from Cape Cod were likely carried north by currents and failed to migrate south before the fall temperature drop.',
   },
@@ -47,8 +53,13 @@ export const RELEASE_SCENARIOS: ReleaseScenario[] = [
       'Chesapeake Bay, VA seagrass beds',
     ],
     correctLocation: 'Indian River Lagoon, FL (original capture location)',
-    seasonOptions: SEASON_OPTIONS,
-    correctSeason: 'Spring',
+    checklistItems: [
+      { id: 'r2-c1', label: 'Release near original capture/stranding site', correct: true },
+      { id: 'r2-c2', label: 'Seagrass foraging habitat available at site', correct: true },
+      { id: 'r2-c3', label: 'Water temperature within species tolerance range', correct: true },
+      { id: 'r2-c4', label: 'Tumor-free for at least 6 months before release', correct: false },
+      { id: 'r2-c5', label: 'Release in area with no other FP-positive turtles', correct: false },
+    ],
     educationalBlurb:
       'FP-recovered turtles should be released near their original capture location whenever possible, as green turtles show strong site fidelity to specific foraging grounds. The Indian River Lagoon is a critical developmental habitat for juvenile and sub-adult green turtles in Florida. Spring release ensures warm water temperatures and abundant seagrass growth. Although FP prevalence is high in the lagoon, releasing elsewhere would put the turtle in an unfamiliar foraging environment. A 6-month tumor-free period with clean imaging is the standard threshold for release clearance.',
   },
@@ -64,8 +75,13 @@ export const RELEASE_SCENARIOS: ReleaseScenario[] = [
       'Bermuda offshore waters',
     ],
     correctLocation: 'Nearshore waters off Topsail Beach, NC (original stranding location)',
-    seasonOptions: SEASON_OPTIONS,
-    correctSeason: 'Summer',
+    checklistItems: [
+      { id: 'r3-c1', label: 'Release near original stranding location', correct: true },
+      { id: 'r3-c2', label: 'Warm water temperature (above 20\u00B0C) at release site', correct: true },
+      { id: 'r3-c3', label: 'Access to benthic prey (crabs, mollusks) at site', correct: true },
+      { id: 'r3-c4', label: 'Release during nesting season for reproductive females', correct: false },
+      { id: 'r3-c5', label: 'Satellite tag attached before release', correct: false },
+    ],
     educationalBlurb:
       'Adult loggerheads should be released near their stranding location when water temperatures are appropriate. Summer release in North Carolina provides warm coastal waters (24-28 degrees C) ideal for loggerheads. Releasing an adult female during summer also allows her to potentially participate in the nesting season if she is reproductively active. North Carolina\'s coast is within the loggerhead\'s normal foraging range, and nearshore release gives access to preferred benthic (bottom-dwelling) prey like crabs and mollusks. Releasing offshore in the Gulf Stream would push the turtle away from coastal foraging habitat.',
   },
@@ -81,8 +97,13 @@ export const RELEASE_SCENARIOS: ReleaseScenario[] = [
       'Long Island Sound, NY',
     ],
     correctLocation: 'Warm offshore waters in the Gulf Stream south of Cape Hatteras',
-    seasonOptions: SEASON_OPTIONS,
-    correctSeason: 'Fall',
+    checklistItems: [
+      { id: 'r4-c1', label: 'Release in warm pelagic (open ocean) waters', correct: true },
+      { id: 'r4-c2', label: 'Alignment with species migratory corridor', correct: true },
+      { id: 'r4-c3', label: 'Jellyfish prey availability at release site', correct: true },
+      { id: 'r4-c4', label: 'Release at original entanglement location', correct: false },
+      { id: 'r4-c5', label: 'Nearshore release for easier monitoring', correct: false },
+    ],
     educationalBlurb:
       'Leatherbacks are highly migratory and pelagic — they do not stay in nearshore coastal waters like other species. Releasing in the Gulf Stream south of Cape Hatteras in fall aligns with their natural southward migration pattern. By December, Massachusetts waters are dangerously cold even for leatherbacks (which tolerate colder water than other sea turtles due to counter-current heat exchange in their flippers). The Gulf Stream provides the warm-water corridor that leatherbacks use during migration. Releasing at a nesting beach would be inappropriate as this is a sub-adult, not a breeding adult, and forced proximity to a nesting area is not ecologically sound.',
   },
@@ -98,8 +119,13 @@ export const RELEASE_SCENARIOS: ReleaseScenario[] = [
       'Mangrove estuary, Everglades National Park',
     ],
     correctLocation: 'Coral reef habitat in the Florida Keys (near original stranding site)',
-    seasonOptions: SEASON_OPTIONS,
-    correctSeason: 'Summer',
+    checklistItems: [
+      { id: 'r5-c1', label: 'Species-specific habitat (coral reef) at release site', correct: true },
+      { id: 'r5-c2', label: 'Sponge prey availability at release site', correct: true },
+      { id: 'r5-c3', label: 'Release near original stranding location', correct: true },
+      { id: 'r5-c4', label: 'Release in deep offshore waters for safety', correct: false },
+      { id: 'r5-c5', label: 'Presence of seagrass beds at release site', correct: false },
+    ],
     educationalBlurb:
       'Hawksbills are closely associated with coral reef habitats, where they feed primarily on sponges. The Florida Keys contains the only barrier reef in the continental United States and is critical hawksbill habitat. Releasing near the original stranding site in the Keys during summer provides warm water (26-30 degrees C) and access to abundant reef sponges. Summer also coincides with peak coral reef productivity. Hawksbills are critically endangered, and every successful rehabilitation and release contributes meaningfully to population recovery. Releasing in seagrass or mangrove habitat would be inappropriate as it does not match their specialized diet and ecological niche.',
   },
@@ -115,8 +141,13 @@ export const RELEASE_SCENARIOS: ReleaseScenario[] = [
       'South Padre Island, TX jetty',
     ],
     correctLocation: 'Nearshore waters off Mustang Island, TX (original stranding site)',
-    seasonOptions: SEASON_OPTIONS,
-    correctSeason: 'Spring',
+    checklistItems: [
+      { id: 'r6-c1', label: 'Release near original stranding site', correct: true },
+      { id: 'r6-c2', label: 'Seagrass foraging habitat at release location', correct: true },
+      { id: 'r6-c3', label: 'Water temperature above 20\u00B0C at release site', correct: true },
+      { id: 'r6-c4', label: 'Release in offshore pelagic waters', correct: false },
+      { id: 'r6-c5', label: 'Area confirmed free of marine debris', correct: false },
+    ],
     educationalBlurb:
       'Green turtles in the western Gulf of Mexico forage in the seagrass beds along the Texas coast. Releasing near the original stranding site maintains the turtle\'s connection to its familiar foraging ground. Spring release in Texas provides water temperatures above 20 degrees C as the Gulf warms, and coincides with the spring seagrass growing season — ensuring abundant food availability. Releasing offshore would be inappropriate as juvenile greens are primarily nearshore, benthic foragers. This case highlights the devastating impact of marine debris: over 40 pieces of plastic in a turtle with a 32 cm shell. Public education about reducing single-use plastics is critical for sea turtle conservation.',
   },

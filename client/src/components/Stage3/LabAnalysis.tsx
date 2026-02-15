@@ -24,6 +24,7 @@ export function LabAnalysis() {
   const [results, setResults] = useState<Map<string, SubTaskResult>>(new Map());
   const [completed, setCompleted] = useState(false);
   const completedRef = useRef(false);
+  const subTaskStartTime = useRef(Date.now());
 
   const cases = LAB_CASES as LabCaseType[];
   const totalCases = cases.length;
@@ -49,21 +50,42 @@ export function LabAnalysis() {
   // Handle sub-task completion: submit to server and optimistically record result
   const handleSubTaskComplete = useCallback(
     (subTaskId: string, answer: string) => {
-      submitAnswer(4, subTaskId, answer);
+      submitAnswer(4, subTaskId, answer, subTaskStartTime.current);
 
       // Optimistic local result so the UI can advance without waiting for server
       if (currentCase) {
         const subTask = currentCase.subTasks.find((s) => s.id === subTaskId);
         if (subTask) {
-          const isCorrect = answer === subTask.correctAnswer;
-          const pts = isCorrect ? subTask.points : 0;
+          // Check if this is an item-finding subtask (stomach / microscope)
+          const correctItems = subTask.correctAnswer.split(',');
+          const isItemFinding = correctItems.length > 1 && correctItems[0]?.includes('-');
+
+          let isCorrect: boolean;
+          let pts: number;
+
+          if (isItemFinding && answer !== 'gave_up') {
+            // Per-tap scoring: +25 per correct, -15 per wrong
+            const correctSet = new Set(correctItems);
+            const tappedItems = answer.split(',').filter(Boolean);
+            pts = 0;
+            for (const item of tappedItems) {
+              if (correctSet.has(item)) pts += 25;
+              else pts -= 15;
+            }
+            const foundCount = tappedItems.filter((id) => correctSet.has(id)).length;
+            isCorrect = foundCount === correctSet.size;
+          } else {
+            isCorrect = answer === subTask.correctAnswer;
+            pts = isCorrect ? subTask.points : 0;
+          }
+
           setResults((prev) => {
             if (prev.has(subTaskId)) return prev;
             const next = new Map(prev);
             next.set(subTaskId, { correct: isCorrect, points: pts });
             return next;
           });
-          setScore((prev) => prev + (isCorrect ? subTask.points : 0));
+          setScore((prev) => prev + pts);
         }
       }
     },
@@ -87,6 +109,11 @@ export function LabAnalysis() {
   const effectiveSubTaskIdx = derivedSubTaskIdx === -1
     ? (currentCase?.subTasks.length ?? 0)
     : derivedSubTaskIdx;
+
+  // Reset subtask start time when the active subtask or case changes
+  useEffect(() => {
+    subTaskStartTime.current = Date.now();
+  }, [effectiveSubTaskIdx, currentCaseIdx]);
 
   // Advance to the next case when all sub-tasks for the current case are done.
   // effectiveSubTaskIdx >= length means every sub-task has a result.

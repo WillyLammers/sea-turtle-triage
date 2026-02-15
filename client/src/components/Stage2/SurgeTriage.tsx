@@ -40,6 +40,7 @@ export function SurgeTriage() {
   resultRef.current = result;
   const currentIndexRef = useRef(currentIndex);
   currentIndexRef.current = currentIndex;
+  const cardStartTime = useRef(Date.now());
 
   // ------------------------------------------------------------------
   // Countdown timer
@@ -111,7 +112,7 @@ export function SurgeTriage() {
 
       const card = cards[currentIndexRef.current];
       if (card) {
-        submitAnswer(2, card.id, code);
+        submitAnswer(2, card.id, code, cardStartTime.current);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,7 +143,7 @@ export function SurgeTriage() {
 
     // Still submit so the server records the miss
     if (card) {
-      submitAnswer(2, card.id, '__timeout__');
+      submitAnswer(2, card.id, '__timeout__', cardStartTime.current);
     }
 
     setTimeout(() => {
@@ -173,6 +174,7 @@ export function SurgeTriage() {
       setSelectedCode(null);
       setResult(null);
       setTransitioning(false);
+      cardStartTime.current = Date.now();
     }, TRANSITION_MS);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalCards, completeStage]);

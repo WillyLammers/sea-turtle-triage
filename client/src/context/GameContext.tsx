@@ -93,7 +93,7 @@ interface GameContextType {
   joinRoom: (code: string, name: string) => void;
   toggleReady: () => void;
   startGame: () => void;
-  submitAnswer: (stageId: number, questionId: string, answer: string) => void;
+  submitAnswer: (stageId: number, questionId: string, answer: string, questionStartTime?: number) => void;
   submitEmergencyResponse: (emergencyId: string, answer: string) => void;
   completeStage: (stageId: number) => void;
 }
@@ -185,8 +185,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     socket.emit('start-game', {});
   }, []);
 
-  const submitAnswer = useCallback((stageId: number, questionId: string, answer: string) => {
-    socket.emit('stage-answer', { stageId, questionId, answer, timestamp: Date.now() });
+  const submitAnswer = useCallback((stageId: number, questionId: string, answer: string, questionStartTime?: number) => {
+    socket.emit('stage-answer', { stageId, questionId, answer, timestamp: questionStartTime ?? Date.now() });
   }, []);
 
   const submitEmergencyResponse = useCallback((emergencyId: string, answer: string) => {

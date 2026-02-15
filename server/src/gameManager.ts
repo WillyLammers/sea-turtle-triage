@@ -40,19 +40,19 @@ const CORRECT_ANSWERS: Record<string, string> = {
   'lab4-st1': 'Mixed respiratory and metabolic acidosis — consistent with cold stunning',
   'lab4-st2': 'Stress hyperglycemia, dehydration, muscle damage, and immune suppression — all consistent with cold-stunning syndrome',
   'lab4-st3': 'Warm slowly — no more than 3-5 degrees C per day — to prevent reperfusion injury and cardiac arrhythmias',
-  // Stage 3 — Release (location + season keyed separately for split validation)
+  // Stage 3 — Release (location + checklist keyed separately for split validation)
   'r1-location': 'Warm waters off the coast of central Florida',
-  'r1-season': 'Spring',
+  'r1-checklist': 'r1-c1,r1-c2,r1-c3',
   'r2-location': 'Indian River Lagoon, FL (original capture location)',
-  'r2-season': 'Spring',
+  'r2-checklist': 'r2-c1,r2-c2,r2-c3',
   'r3-location': 'Nearshore waters off Topsail Beach, NC (original stranding location)',
-  'r3-season': 'Summer',
+  'r3-checklist': 'r3-c1,r3-c2,r3-c3',
   'r4-location': 'Warm offshore waters in the Gulf Stream south of Cape Hatteras',
-  'r4-season': 'Fall',
+  'r4-checklist': 'r4-c1,r4-c2,r4-c3',
   'r5-location': 'Coral reef habitat in the Florida Keys (near original stranding site)',
-  'r5-season': 'Summer',
+  'r5-checklist': 'r5-c1,r5-c2,r5-c3',
   'r6-location': 'Nearshore waters off Mustang Island, TX (original stranding site)',
-  'r6-season': 'Spring',
+  'r6-checklist': 'r6-c1,r6-c2,r6-c3',
 };
 
 const STREAK_THRESHOLD = 3;
@@ -109,7 +109,7 @@ export class GameManager {
     const answerKey = this.answerKeys.get(roomCode);
     const correctAnswer = answerKey?.get(data.questionId) || CORRECT_ANSWERS[data.questionId];
 
-    const isCorrect = correctAnswer
+    let isCorrect = correctAnswer
       ? data.answer === correctAnswer
       : true; // fallback for unregistered dynamic questions
 
@@ -119,22 +119,26 @@ export class GameManager {
 
     const stageKey = `stage${data.stageId}` as keyof typeof player.scores;
 
+    const elapsed = (Date.now() - data.timestamp) / 1000;
+
     if (data.stageId === 1) {
-      // Nest Identification
+      // Nest Identification — quick visual ID, reward speed in tiers
       if (isCorrect) {
         points = 100;
-        const elapsed = (Date.now() - data.timestamp) / 1000;
-        if (elapsed < 10) speedBonus = Math.round(75 * (1 - elapsed / 10));
+        if (elapsed < 3) speedBonus = 75;
+        else if (elapsed < 7) speedBonus = 50;
+        else if (elapsed < 12) speedBonus = 25;
       } else {
         points = -25;
       }
     } else if (data.stageId === 2) {
-      // Surge Triage
+      // Surge Triage — categorization under pressure
       const streak = this.playerStreaks.get(socketId) || 0;
       if (isCorrect) {
         points = 75;
-        const elapsed = (Date.now() - data.timestamp) / 1000;
-        if (elapsed < 10) speedBonus = Math.round(50 * (1 - elapsed / 10));
+        if (elapsed < 4) speedBonus = 50;
+        else if (elapsed < 8) speedBonus = 30;
+        else if (elapsed < 12) speedBonus = 10;
         this.playerStreaks.set(socketId, streak + 1);
         if (streak + 1 >= STREAK_THRESHOLD) {
           streakBonus = Math.round((points + speedBonus) * (STREAK_MULTIPLIER - 1));
@@ -144,25 +148,42 @@ export class GameManager {
         this.playerStreaks.set(socketId, 0);
       }
     } else if (data.stageId === 3) {
-      // Release — client sends "location|season" combined answer
-      // Split and validate each part separately
+      // Release — client sends "location|id1,id2,id3" combined answer
       const parts = data.answer.split('|');
       const submittedLocation = parts[0] || '';
-      const submittedSeason = parts[1] || '';
+      const submittedChecklistStr = parts[1] || '';
       const correctLocation = CORRECT_ANSWERS[`${data.questionId}-location`];
-      const correctSeason = CORRECT_ANSWERS[`${data.questionId}-season`];
+      const correctChecklistStr = CORRECT_ANSWERS[`${data.questionId}-checklist`];
       const locCorrect = correctLocation ? submittedLocation === correctLocation : false;
-      const sznCorrect = correctSeason ? submittedSeason === correctSeason : false;
-      if (locCorrect) points += 100;
-      if (sznCorrect) points += 50;
-      if (locCorrect && sznCorrect) {
-        points += 75; // bonus for both
-        const elapsed = (Date.now() - data.timestamp) / 1000;
-        if (elapsed < 15) speedBonus = Math.round(50 * (1 - elapsed / 15));
-      } else if (!locCorrect && !sznCorrect) {
-        points = -50; // penalty for getting both wrong
+
+      // Checklist set comparison
+      const correctSet = new Set(correctChecklistStr ? correctChecklistStr.split(',') : []);
+      const submittedSet = new Set(submittedChecklistStr ? submittedChecklistStr.split(',').filter(Boolean) : []);
+
+      let checklistCorrect = 0;
+      let checklistWrong = 0;
+      for (const id of submittedSet) {
+        if (correctSet.has(id)) {
+          checklistCorrect++;
+        } else {
+          checklistWrong++;
+        }
       }
-      const releaseCorrect = locCorrect && sznCorrect;
+      const perfectChecklist = checklistCorrect === correctSet.size && checklistWrong === 0;
+
+      // Same scoring as client: location=100, each correct=25, each wrong=-15, perfect bonus=50
+      if (locCorrect) points += 100;
+      points += checklistCorrect * 25;
+      points += checklistWrong * -15;
+      if (perfectChecklist) points += 50;
+
+      const releaseCorrect = locCorrect && perfectChecklist;
+      // Release speed bonus — requires more thought, so generous time windows
+      if (releaseCorrect) {
+        if (elapsed < 10) speedBonus = 75;
+        else if (elapsed < 20) speedBonus = 50;
+        else if (elapsed < 30) speedBonus = 25;
+      }
       const totalPoints = points + speedBonus + streakBonus;
       player.scores[stageKey] += totalPoints;
       player.currentQuestion++;
@@ -171,16 +192,44 @@ export class GameManager {
         points,
         speedBonus,
         streakBonus: 0,
-        correctAnswer: `${correctLocation || ''}|${correctSeason || ''}`,
+        correctAnswer: `${correctLocation || ''}|${correctChecklistStr || ''}`,
       };
     } else if (data.stageId === 4) {
       // Lab Analysis
-      if (isCorrect) {
-        points = 150;
-        const elapsed = (Date.now() - data.timestamp) / 1000;
-        if (elapsed < 15) speedBonus = Math.round(75 * (1 - elapsed / 15));
+      // Check if this is an item-finding subtask (stomach / microscope)
+      const correctItems = correctAnswer?.split(',') ?? [];
+      const isItemFinding = correctItems.length > 1 && correctItems[0]?.includes('-');
+
+      if (isItemFinding && data.answer !== 'gave_up') {
+        // Per-tap scoring: +25 per correct item, -15 per wrong item
+        const correctSet = new Set(correctItems);
+        const tappedItems = data.answer.split(',').filter(Boolean);
+        points = 0;
+        for (const item of tappedItems) {
+          if (correctSet.has(item)) {
+            points += 25;
+          } else {
+            points -= 15;
+          }
+        }
+        const foundCorrect = tappedItems.filter((id: string) => correctSet.has(id)).length;
+        isCorrect = foundCorrect === correctSet.size;
+        // Item-finding speed bonus — more items to find, so wider time windows
+        if (isCorrect) {
+          if (elapsed < 15) speedBonus = 50;
+          else if (elapsed < 25) speedBonus = 30;
+          else if (elapsed < 40) speedBonus = 15;
+        }
       } else {
-        points = -50;
+        // Regular multiple-choice subtask scoring
+        if (isCorrect) {
+          points = 150;
+          if (elapsed < 8) speedBonus = 75;
+          else if (elapsed < 15) speedBonus = 40;
+          else if (elapsed < 25) speedBonus = 15;
+        } else {
+          points = -50;
+        }
       }
     }
 

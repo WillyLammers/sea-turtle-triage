@@ -88,7 +88,7 @@ export function NestSurvey() {
   const handleAnswer = useCallback(
     (answer: string) => {
       if (!nest || phase !== 'answering') return;
-      submitAnswer(1, nest.id, answer);
+      submitAnswer(1, nest.id, answer, revealTimestamp.current);
     },
     [nest, phase, submitAnswer],
   );
