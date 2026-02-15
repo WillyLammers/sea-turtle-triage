@@ -18,6 +18,7 @@ interface SubTaskResult {
 export function LabAnalysis() {
   const { submitAnswer, completeStage } = useGame();
 
+  const [phase, setPhase] = useState<'intro' | 'playing'>('intro');
   const [currentCaseIdx, setCurrentCaseIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [results, setResults] = useState<Map<string, SubTaskResult>>(new Map());
@@ -115,6 +116,28 @@ export function LabAnalysis() {
   }, [completeStage]);
 
   // ---------- Render ----------
+
+  if (phase === 'intro') {
+    return (
+      <div className={styles.labBackground}>
+        <div className={styles.labIntroOverlay}>
+          <div className={styles.labIntroIcon}>{'\u{1F52C}'}</div>
+          <div className={styles.labIntroTitle}>Stage 4: Lab Analysis</div>
+          <p className={styles.labIntroDesc}>
+            Analyze tissue samples, interpret blood work, and determine causes of illness
+            across multiple clinical cases. Accuracy is critical for each diagnosis.
+          </p>
+          <div className={styles.labIntroStats}>
+            <span className={styles.labIntroChip}>{totalCases} cases to analyze</span>
+            <span className={styles.labIntroChip}>{STAGE_TIME_LIMIT / 60}min time limit</span>
+          </div>
+          <button className={styles.labIntroBtn} onClick={() => setPhase('playing')}>
+            Begin Analysis
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (completed) {
     return (

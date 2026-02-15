@@ -63,7 +63,7 @@ export function Emergency() {
       <div className={styles.container}>
         {/* Timer */}
         <div className={styles.timerWrap}>
-          <Timer seconds={20} onComplete={handleTimeout} paused={submitted} />
+          <Timer seconds={15} onComplete={handleTimeout} paused={submitted} />
         </div>
 
         {/* Header */}

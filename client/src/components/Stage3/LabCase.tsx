@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
+import type { StomachItemShape } from '../../data/labCases';
 import { TurtleSVG } from '../shared/TurtleSVG';
 import { Microscope } from './Microscope';
 import styles from './Stage3.module.css';
@@ -11,6 +12,7 @@ interface SubTaskItem {
   id: string;
   label: string;
   isTarget: boolean;
+  shape?: StomachItemShape;
 }
 
 interface SubTask {
@@ -139,6 +141,101 @@ function MicroscopeSubTask({
   );
 }
 
+/** Inline SVG icons for stomach content items (~30px). */
+function StomachItemSVG({ shape }: { shape: StomachItemShape }) {
+  const s = 30;
+  const common = { width: s, height: s, viewBox: '0 0 30 30', xmlns: 'http://www.w3.org/2000/svg' } as const;
+
+  switch (shape) {
+    case 'plasticBag':
+      return (
+        <svg {...common}>
+          <path d="M8 6 Q6 6 6 8 L5 22 Q5 25 8 25 L22 25 Q25 25 25 22 L24 8 Q24 6 22 6 Z" fill="rgba(100,180,240,0.5)" stroke="rgba(60,130,200,0.7)" strokeWidth="0.8" />
+          <path d="M10 6 L12 3 M20 6 L18 3" stroke="rgba(60,130,200,0.6)" strokeWidth="0.8" fill="none" />
+          <path d="M9 12 Q15 14 21 11 M8 18 Q14 20 22 17" stroke="rgba(60,130,200,0.3)" strokeWidth="0.6" fill="none" />
+        </svg>
+      );
+    case 'penCap':
+      return (
+        <svg {...common}>
+          <rect x="10" y="4" width="7" height="20" rx="1.5" fill="#3a5a8a" stroke="#2a4060" strokeWidth="0.8" />
+          <rect x="12" y="24" width="3" height="3" rx="0.5" fill="#3a5a8a" stroke="#2a4060" strokeWidth="0.6" />
+          <rect x="7" y="7" width="3" height="6" rx="1" fill="#3a5a8a" stroke="#2a4060" strokeWidth="0.6" />
+          <line x1="12" y1="6" x2="12" y2="22" stroke="rgba(255,255,255,0.2)" strokeWidth="0.6" />
+        </svg>
+      );
+    case 'balloon':
+      return (
+        <svg {...common}>
+          <ellipse cx="15" cy="12" rx="8" ry="10" fill="#e05070" stroke="#b03050" strokeWidth="0.8" opacity="0.8" />
+          <ellipse cx="13" cy="9" rx="2" ry="3" fill="rgba(255,255,255,0.25)" />
+          <path d="M15 22 L14 23 L16 23 Z" fill="#b03050" />
+          <path d="M15 23 Q12 26 14 28 Q13 29 15 29" stroke="#b03050" strokeWidth="0.8" fill="none" />
+        </svg>
+      );
+    case 'fishingLine':
+      return (
+        <svg {...common}>
+          <path d="M4 8 Q10 4 14 12 Q18 20 24 10 Q28 4 26 14 Q24 22 18 18 Q12 14 8 22" stroke="rgba(200,200,210,0.9)" strokeWidth="1" fill="none" />
+          <path d="M8 22 Q6 26 10 26 Q14 24 12 20" stroke="rgba(200,200,210,0.9)" strokeWidth="1" fill="none" />
+        </svg>
+      );
+    case 'polystyrene':
+      return (
+        <svg {...common}>
+          {[
+            [8, 10], [14, 7], [20, 11], [11, 16], [17, 15],
+            [22, 19], [8, 22], [15, 22], [21, 24], [12, 12],
+          ].map(([cx, cy], i) => (
+            <circle key={i} cx={cx} cy={cy} r={2.2} fill="#f0f0f0" stroke="#c8c8c8" strokeWidth="0.5" />
+          ))}
+        </svg>
+      );
+    case 'rubberBand':
+      return (
+        <svg {...common}>
+          <ellipse cx="15" cy="15" rx="10" ry="7" fill="none" stroke="#c48040" strokeWidth="2.5" opacity="0.85" />
+          <ellipse cx="15" cy="15" rx="10" ry="7" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.8" />
+        </svg>
+      );
+    case 'crab':
+      return (
+        <svg {...common}>
+          <ellipse cx="15" cy="16" rx="7" ry="5" fill="#b86840" stroke="#8a4a28" strokeWidth="0.8" />
+          <circle cx="11" cy="11" r="1.5" fill="#b86840" stroke="#8a4a28" strokeWidth="0.6" />
+          <circle cx="19" cy="11" r="1.5" fill="#b86840" stroke="#8a4a28" strokeWidth="0.6" />
+          <path d="M8 16 Q4 13 3 10 M22 16 Q26 13 27 10" stroke="#8a4a28" strokeWidth="1.2" fill="none" />
+          <path d="M10 20 L8 24 M13 21 L12 25 M17 21 L18 25 M20 20 L22 24" stroke="#8a4a28" strokeWidth="0.8" fill="none" />
+        </svg>
+      );
+    case 'shrimp':
+      return (
+        <svg {...common}>
+          <path d="M22 8 Q20 6 18 8 Q14 12 10 14 Q7 16 6 20 Q5 23 8 24 Q11 24 14 22 Q16 20 18 18" fill="#d4907a" stroke="#a06850" strokeWidth="0.8" />
+          <path d="M8 24 L6 26 M9 24 L8 27" stroke="#a06850" strokeWidth="0.6" fill="none" />
+          <line x1="22" y1="8" x2="26" y2="5" stroke="#a06850" strokeWidth="0.6" />
+          <line x1="22" y1="8" x2="27" y2="7" stroke="#a06850" strokeWidth="0.6" />
+        </svg>
+      );
+    case 'seagrass':
+      return (
+        <svg {...common}>
+          <path d="M10 28 Q9 20 11 14 Q13 8 10 3" stroke="#5a8a40" strokeWidth="1.5" fill="none" />
+          <path d="M15 28 Q14 18 16 12 Q18 6 15 2" stroke="#6a9a50" strokeWidth="1.5" fill="none" />
+          <path d="M20 28 Q19 22 21 16 Q23 10 20 5" stroke="#4a7a35" strokeWidth="1.5" fill="none" />
+        </svg>
+      );
+    case 'mollusk':
+      return (
+        <svg {...common}>
+          <path d="M15 5 Q22 8 24 15 Q25 22 20 26 Q15 28 10 26 Q5 22 6 15 Q7 8 15 5 Z" fill="#c8b8a0" stroke="#9a8a70" strokeWidth="0.8" />
+          <path d="M15 5 Q16 12 15 20 Q14 25 13 26" stroke="#9a8a70" strokeWidth="0.6" fill="none" />
+          <path d="M10 10 Q14 12 18 10 M8 16 Q14 18 22 15 M9 22 Q14 23 20 21" stroke="rgba(154,138,112,0.4)" strokeWidth="0.5" fill="none" />
+        </svg>
+      );
+  }
+}
+
 function StomachSubTask({
   subTask,
   onComplete,
@@ -225,7 +322,9 @@ function StomachSubTask({
                   }
                 }}
                 aria-label={isTapped ? `${item.label} (identified)` : 'Stomach content'}
-              />
+              >
+                {item.shape && <StomachItemSVG shape={item.shape} />}
+              </div>
             );
           })}
         </div>

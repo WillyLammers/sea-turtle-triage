@@ -4,10 +4,24 @@
 
 export type SubTaskType = 'microscope' | 'stomach' | 'bloodGas' | 'necropsy';
 
+export type StomachItemShape =
+  | 'plasticBag'
+  | 'penCap'
+  | 'balloon'
+  | 'fishingLine'
+  | 'polystyrene'
+  | 'rubberBand'
+  | 'crab'
+  | 'shrimp'
+  | 'seagrass'
+  | 'mollusk';
+
 export interface MicroscopeItem {
   id: string;
   label: string;
   isTarget: boolean;
+  /** Optional SVG shape hint for stomach content items */
+  shape?: StomachItemShape;
 }
 
 export interface SubTask {
@@ -106,16 +120,16 @@ export const LAB_CASES: LabCase[] = [
         description:
           'Examine the stomach and intestinal contents. Identify which items are anthropogenic (human-made) debris versus natural food items for a Kemp\'s ridley turtle.',
         items: [
-          { id: 'lab3-s1', label: 'Fragment of blue plastic bag', isTarget: true },
-          { id: 'lab3-s2', label: 'Crab exoskeleton pieces (natural prey)', isTarget: false },
-          { id: 'lab3-s3', label: 'Piece of ballpoint pen cap', isTarget: true },
-          { id: 'lab3-s4', label: 'Small shrimp remains (natural prey)', isTarget: false },
-          { id: 'lab3-s5', label: 'Degraded balloon fragment with ribbon', isTarget: true },
-          { id: 'lab3-s6', label: 'Monofilament fishing line tangle', isTarget: true },
-          { id: 'lab3-s7', label: 'Seagrass blades (incidental ingestion)', isTarget: false },
-          { id: 'lab3-s8', label: 'Foam polystyrene pellets (microplastics)', isTarget: true },
-          { id: 'lab3-s9', label: 'Small mollusk shell fragments (natural prey)', isTarget: false },
-          { id: 'lab3-s10', label: 'Rubber band', isTarget: true },
+          { id: 'lab3-s1', label: 'Fragment of blue plastic bag', isTarget: true, shape: 'plasticBag' },
+          { id: 'lab3-s2', label: 'Crab exoskeleton pieces (natural prey)', isTarget: false, shape: 'crab' },
+          { id: 'lab3-s3', label: 'Piece of ballpoint pen cap', isTarget: true, shape: 'penCap' },
+          { id: 'lab3-s4', label: 'Small shrimp remains (natural prey)', isTarget: false, shape: 'shrimp' },
+          { id: 'lab3-s5', label: 'Degraded balloon fragment with ribbon', isTarget: true, shape: 'balloon' },
+          { id: 'lab3-s6', label: 'Monofilament fishing line tangle', isTarget: true, shape: 'fishingLine' },
+          { id: 'lab3-s7', label: 'Seagrass blades (incidental ingestion)', isTarget: false, shape: 'seagrass' },
+          { id: 'lab3-s8', label: 'Foam polystyrene pellets (microplastics)', isTarget: true, shape: 'polystyrene' },
+          { id: 'lab3-s9', label: 'Small mollusk shell fragments (natural prey)', isTarget: false, shape: 'mollusk' },
+          { id: 'lab3-s10', label: 'Rubber band', isTarget: true, shape: 'rubberBand' },
         ],
         correctAnswer: 'lab3-s1,lab3-s3,lab3-s5,lab3-s6,lab3-s8,lab3-s10',
         points: 50,

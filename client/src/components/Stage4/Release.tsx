@@ -17,6 +17,7 @@ interface ReleaseResult {
 
 export function Release() {
   const { submitAnswer, completeStage } = useGame();
+  const [phase, setPhase] = useState<'intro' | 'playing'>('intro');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [result, setResult] = useState<ReleaseResult | null>(null);
@@ -117,6 +118,36 @@ export function Release() {
       completeStage(3);
     }
   }, [completed, completeStage]);
+
+  // Intro screen
+  if (phase === 'intro') {
+    return (
+      <div className={styles.releaseScene}>
+        <div className={styles.sunsetSky} />
+        <div className={styles.sunDisc} />
+        <div className={styles.horizonGlow} />
+        <div className={styles.sunsetOcean} />
+        <div className={styles.waterReflection} />
+        <div className={styles.sunsetSand} />
+
+        <div className={styles.releaseIntroOverlay}>
+          <div className={styles.releaseIntroIcon}>{'\u{1F3D6}\uFE0F\u{1F422}'}</div>
+          <div className={styles.releaseIntroTitle}>Stage 3: Release Day</div>
+          <p className={styles.releaseIntroDesc}>
+            Your rehabilitated turtles are ready to return to the ocean. Choose the best release
+            location and season for each species based on their biology and habitat needs.
+          </p>
+          <div className={styles.releaseIntroStats}>
+            <span className={styles.releaseIntroChip}>{total} turtles to release</span>
+            <span className={styles.releaseIntroChip}>120s time limit</span>
+          </div>
+          <button className={styles.releaseIntroBtn} onClick={() => setPhase('playing')}>
+            Begin Release
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Completed state
   if (completed) {
